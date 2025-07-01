@@ -1,26 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './NoteForm.css';
 
-function NoteForm({ onCreateNote }) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+function NoteForm({ initialNote = null, onSubmit, onCancel, mode = 'create' }) {
+  const [title, setTitle] = useState(initialNote ? initialNote.title : '');
+  const [content, setContent] = useState(initialNote ? initialNote.content : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialNote) {
+      setTitle(initialNote.title || '');
+      setContent(initialNote.content || '');
+    }
+  }, [initialNote]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!title.trim() || !content.trim()) {
       return;
     }
-
     setIsSubmitting(true);
-    
     try {
-      await onCreateNote({ title: title.trim(), content: content.trim() });
-      setTitle('');
-      setContent('');
+      await onSubmit({
+        id: initialNote ? initialNote.id : undefined,
+        title: title.trim(),
+        content: content.trim(),
+      });
+      if (!initialNote) {
+        setTitle('');
+        setContent('');
+      }
     } catch (error) {
-      console.error('Error creating note:', error);
+      console.error(`${mode === 'edit' ? 'Error updating' : 'Error creating'} note:`, error);
     } finally {
       setIsSubmitting(false);
     }
@@ -28,7 +38,7 @@ function NoteForm({ onCreateNote }) {
 
   return (
     <div className="note-form-container">
-      <h2>Create New Note</h2>
+      <h2>{mode === 'edit' ? 'Edit Note' : 'Create New Note'}</h2>
       <form onSubmit={handleSubmit} className="note-form">
         <div className="form-group">
           <label htmlFor="title">Title:</label>
@@ -42,7 +52,6 @@ function NoteForm({ onCreateNote }) {
             disabled={isSubmitting}
           />
         </div>
-        
         <div className="form-group">
           <label htmlFor="content">Content:</label>
           <textarea
@@ -55,14 +64,20 @@ function NoteForm({ onCreateNote }) {
             disabled={isSubmitting}
           />
         </div>
-        
-        <button 
-          type="submit" 
-          disabled={isSubmitting || !title.trim() || !content.trim()}
-          className="submit-btn"
-        >
-          {isSubmitting ? 'Creating...' : 'Create Note'}
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            type="submit"
+            disabled={isSubmitting || !title.trim() || !content.trim()}
+            className="submit-btn"
+          >
+            {isSubmitting ? (mode === 'edit' ? 'Saving...' : 'Creating...') : (mode === 'edit' ? 'Save Changes' : 'Create Note')}
+          </button>
+          {mode === 'edit' && (
+            <button type="button" onClick={onCancel} className="submit-btn" style={{ background: '#eee', color: '#333' }} disabled={isSubmitting}>
+              Cancel
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

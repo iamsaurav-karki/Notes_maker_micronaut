@@ -49,4 +49,9 @@ public class NoteController {
     public HttpResponse<?> options() {
         return HttpResponse.ok();
     }
+
+    @Options("/{id}")
+    public HttpResponse<?> optionsForId(String id) {
+        return HttpResponse.ok();
+    }
 } 

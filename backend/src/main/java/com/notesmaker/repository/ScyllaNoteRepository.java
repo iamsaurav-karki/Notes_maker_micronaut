@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.time.Instant;
 
 @Singleton
 public class ScyllaNoteRepository implements NoteRepository {
@@ -23,7 +24,7 @@ public class ScyllaNoteRepository implements NoteRepository {
     private final String keyspace;
     
     private static final String CREATE_TABLE_QUERY = """
-        CREATE TABLE IF NOT EXISTS notes (
+        CREATE TABLE IF NOT EXISTS notes_maker.notes (
             id uuid PRIMARY KEY,
             title text,
             content text,
@@ -33,16 +34,16 @@ public class ScyllaNoteRepository implements NoteRepository {
     """;
     
     private static final String INSERT_QUERY = 
-        "INSERT INTO notes (id, title, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
+        "INSERT INTO notes_maker.notes (id, title, content, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
     
-    private static final String SELECT_ALL_QUERY = "SELECT * FROM notes";
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM notes_maker.notes";
     
-    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM notes WHERE id = ?";
+    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM notes_maker.notes WHERE id = ?";
     
     private static final String UPDATE_QUERY = 
-        "UPDATE notes SET title = ?, content = ?, updated_at = ? WHERE id = ?";
+        "UPDATE notes_maker.notes SET title = ?, content = ?, updated_at = ? WHERE id = ?";
     
-    private static final String DELETE_QUERY = "DELETE FROM notes WHERE id = ?";
+    private static final String DELETE_QUERY = "DELETE FROM notes_maker.notes WHERE id = ?";
 
     public ScyllaNoteRepository(CqlSession session, @Value("${cassandra.default.keyspace}") String keyspace) {
         this.session = session;
@@ -90,6 +91,17 @@ public class ScyllaNoteRepository implements NoteRepository {
 
     @Override
     public Note save(Note note) {
+        if (note.getId() == null) {
+            note.setId(UUID.randomUUID());
+        }
+        // Set timestamps if null
+        Instant now = Instant.now();
+        if (note.getCreatedAt() == null) {
+            note.setCreatedAt(now);
+        }
+        if (note.getUpdatedAt() == null) {
+            note.setUpdatedAt(now);
+        }
         try {
             PreparedStatement preparedStatement = session.prepare(INSERT_QUERY);
             BoundStatement boundStatement = preparedStatement.bind(
@@ -122,7 +134,7 @@ public class ScyllaNoteRepository implements NoteRepository {
     @Override
     public Note update(Note note) {
         try {
-            note.setUpdatedAt(LocalDateTime.now());
+            note.setUpdatedAt(Instant.now());
             PreparedStatement preparedStatement = session.prepare(UPDATE_QUERY);
             BoundStatement boundStatement = preparedStatement.bind(
                     note.getTitle(),
@@ -139,12 +151,11 @@ public class ScyllaNoteRepository implements NoteRepository {
     }
 
     private Note mapRowToNote(Row row) {
-        return new Note(
-                row.getUuid("id"),
-                row.getString("title"),
-                row.getString("content"),
-                row.getInstant("created_at").atZone(ZoneId.systemDefault()).toLocalDateTime(),
-                row.getInstant("updated_at").atZone(ZoneId.systemDefault()).toLocalDateTime()
-        );
+        UUID id = row.getUuid("id");
+        String title = row.getString("title");
+        String content = row.getString("content");
+        Instant createdAt = row.getInstant("created_at");
+        Instant updatedAt = row.getInstant("updated_at");
+        return new Note(id, title, content, createdAt, updatedAt);
     }
 } 

@@ -1,7 +1,7 @@
 package com.notesmaker.model;
 
 import io.micronaut.serde.annotation.Serdeable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Serdeable
@@ -9,8 +9,8 @@ public class Note {
     private UUID id;
     private String title;
     private String content;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public Note() {}
 
@@ -18,11 +18,11 @@ public class Note {
         this.id = UUID.randomUUID();
         this.title = title;
         this.content = content;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.createdAt = Instant.now();
+        this.updatedAt = Instant.now();
     }
 
-    public Note(UUID id, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Note(UUID id, String title, String content, Instant createdAt, Instant updatedAt) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -55,19 +55,19 @@ public class Note {
         this.content = content;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public Instant getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 } 

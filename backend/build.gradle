@@ -8,14 +8,17 @@ group = "com.notesmaker"
 
 // Set Micronaut version
 micronaut {
-    version "4.3.4"
+    version "4.2.1"
 }
 
 repositories {
     mavenCentral()
+    maven { url "https://repo.maven.apache.org/maven2" }
 }
 
 dependencies {
+    implementation platform("io.micronaut.platform:micronaut-platform:4.2.1")
+    annotationProcessor platform("io.micronaut.platform:micronaut-platform:4.2.1")
     annotationProcessor("io.micronaut:micronaut-http-validation")
     annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
     
