@@ -1,0 +1,39 @@
+services:
+  scylladb:
+    image: scylladb/scylla:5.4
+    container_name: scylladb
+    ports:
+      - "9042:9042"
+    volumes:
+      - scylla-data:/var/lib/scylla
+      - ./database/init-keyspace.cql:/docker-entrypoint-initdb.d/init-keyspace.cql
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: backend
+    depends_on:
+      scylladb:
+        condition: service_healthy
+    environment:
+      - MICRONAUT_ENVIRONMENTS=docker
+      - MICRONAUT_CONFIG_FILES=/app/application.yml
+    ports:
+      - "8080:8080"
+    restart: on-failure
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    restart: on-failure
+
+volumes:
+  scylla-data: 

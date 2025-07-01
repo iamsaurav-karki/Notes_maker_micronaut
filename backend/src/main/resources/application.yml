@@ -1,0 +1,41 @@
+cassandra:
+  default:
+    contact-points: ["scylladb:9042"]
+    datacenter: datacenter1
+    keyspace: notes_maker
+    session-name: notes-maker-session
+    request:
+      timeout: 10s
+      consistency-level: LOCAL_ONE
+
+micronaut:
+  application:
+    name: notes-maker-backend
+  server:
+    port: 8080
+    cors:
+      enabled: true
+      configurations:
+        web:
+          allowedOrigins:
+            - "http://localhost:3000"
+            - "http://frontend:3000"
+          allowedMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowedHeaders:
+            - Content-Type
+            - Authorization
+            - X-Requested-With
+          exposed-headers:
+            - Access-Control-Allow-Origin
+            - Access-Control-Allow-Credentials
+  
+# Logging configuration
+logging:
+  level:
+    com.notesmaker: DEBUG
+    io.micronaut: INFO 
