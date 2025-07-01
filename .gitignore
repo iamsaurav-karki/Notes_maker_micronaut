@@ -1,0 +1,45 @@
+# Java/Micronaut
+*.class
+*.jar
+*.war
+*.iml
+*.log
+*.tmp
+*.swp
+*.swo
+*.DS_Store
+/build/
+/out/
+/target/
+/.gradle/
+/.idea/
+/.vscode/
+!src/main/resources/application.yml
+
+# Node/React
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/frontend/build/
+/frontend/dist/
+/frontend/.env
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Misc
+*.bak
+*.tmp
+*.swp
+*.swo
