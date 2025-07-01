@@ -42,4 +42,4 @@ notes-maker/
 
 ---
 
-**Note:** The first startup may take a while as ScyllaDB initializes. The backend will auto-create the required table if it doesn't exist. 
+**Note:** The first startup may take a while as ScyllaDB initializes. The backend will auto-create the required table if it doesn't exist. # Final_Notes_maker_micronaut
